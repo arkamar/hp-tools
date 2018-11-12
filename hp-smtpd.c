@@ -106,6 +106,7 @@ void
 smtp_data(char * arg) {
 	out("354 go ahead\r\n");
 	blast();
+	out("250 ok\r\n");
 }
 
 static
