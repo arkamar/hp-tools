@@ -36,10 +36,9 @@ smtp_ehlo(char * arg) {
 	out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
 }
 
-void
-err_unimpl(char * arg) {
-	out("502 unimplemented (#5.5.1)\r\n");
-}
+void err_unimpl(char * arg) { out("502 unimplemented (#5.5.1)\r\n"); }
+void err_noop  (char * arg) { out("250 ok\r\n"); }
+void err_vrfy  (char * arg) { out("252 send some mail, i'll try my best\r\n"); }
 
 void
 smtp_rcpt(char * arg) {
@@ -74,6 +73,8 @@ struct commands smtp_commands[] = {
 	{ "helo", smtp_helo, flush },
 	{ "rset", smtp_rset, 0 },
 	{ "help", smtp_help, flush },
+	{ "noop", err_noop, flush },
+	{ "vrfy", err_vrfy, flush },
 	{ NULL, err_unimpl, flush }
 };
 
