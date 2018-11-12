@@ -54,6 +54,12 @@ smtp_rset(char * arg) {
 
 static
 void
+smtp_help(char * arg) {
+	out("214 netqmail home page: http://qmail.org/netqmail\r\n");
+}
+
+static
+void
 smtp_quit(char * arg) {
 	smtp_greet("221 ");
 	out("\r\n");
@@ -67,6 +73,7 @@ struct commands smtp_commands[] = {
 	{ "quit", smtp_quit, flush },
 	{ "helo", smtp_helo, flush },
 	{ "rset", smtp_rset, 0 },
+	{ "help", smtp_help, flush },
 	{ NULL, err_unimpl, flush }
 };
 
