@@ -89,13 +89,14 @@ main(int argc, char * argv[]) {
 	smtp_greet("200 ");
 	out(" ESMTP\r\n");
 	while ((len = getline(&line, &cap, stdin)) > 0) {
-		for (i = 0; smtp_commands[i].cmd; i++) {
-			if (!strncasecmp(line, smtp_commands[i].cmd, 4)) {
-				smtp_commands[i].fun(line);
-				if (smtp_commands[i].flush)
-					smtp_commands[i].flush();
-			}
-		}
+
+		for (i = 0; smtp_commands[i].cmd; i++)
+			if (!strncasecmp(line, smtp_commands[i].cmd, 4))
+				break;
+
+		smtp_commands[i].fun(line);
+		if (smtp_commands[i].flush)
+			smtp_commands[i].flush();
 	}
 	free(line);
 }
