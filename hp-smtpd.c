@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 struct commands {
 	char * cmd;
@@ -19,15 +20,65 @@ out(char * str) {
 }
 
 void
+put(char * str) {
+	fwrite(str, 1, 1, stderr);
+}
+
+void
 smtp_greet(char * code) {
 	out(code);
-	fputs("shit", stdout);
+	fputs("test", stdout);
 }
 
 void
 smtp_helo(char * arg) {
 	smtp_greet("250 ");
 	out("\r\n");
+}
+
+void straynewline() {
+	out("451 See http://pobox.com/~djb/docs/smtplf.html.\r\n");
+	flush();
+	_exit(1);
+}
+
+void
+blast() {
+	char ch;
+	int state = 1;
+
+	for (;;) {
+		ch = getchar();
+		put(&ch);
+
+		switch (state) {
+		case 0:
+			if (ch == '\n') straynewline();
+			if (ch == '\r') { state = 4; continue; }
+			break;
+		case 1: /* \r\n */
+			if (ch == '\n') straynewline();
+			if (ch == '.') { state = 2; continue; }
+			if (ch == '\r') { state = 4; continue; }
+			state = 0;
+			break;
+		case 2: /* \r\n + . */
+			if (ch == '\n') straynewline();
+			if (ch == '\r') { state = 3; continue; }
+			state = 0;
+			break;
+		case 3: /* \r\n + .\r */
+			if (ch == '\n') return;
+			put(".");
+			put("\r");
+			if (ch == '\r') { state = 4; continue; }
+			state = 0;
+			break;
+		case 4: /* + \r */
+			if (ch == '\n') { state = 1; break; }
+			if (ch != '\r') { put("\r"); state = 0; }
+		}
+	}
 }
 
 void
@@ -43,6 +94,18 @@ void err_vrfy  (char * arg) { out("252 send some mail, i'll try my best\r\n"); }
 void
 smtp_rcpt(char * arg) {
 	out("250 ok\r\n");
+}
+
+void
+smtp_mail(char * arg) {
+	out("250 ok\r\n");
+}
+
+static
+void
+smtp_data(char * arg) {
+	out("354 go ahead\r\n");
+	blast();
 }
 
 static
@@ -68,9 +131,11 @@ smtp_quit(char * arg) {
 
 struct commands smtp_commands[] = {
 	{ "rcpt", smtp_rcpt, 0 },
-	{ "ehlo", smtp_ehlo, flush },
+	{ "mail", smtp_mail, 0 },
+	{ "data", smtp_data, 0 },
 	{ "quit", smtp_quit, flush },
 	{ "helo", smtp_helo, flush },
+	{ "ehlo", smtp_ehlo, flush },
 	{ "rset", smtp_rset, 0 },
 	{ "help", smtp_help, flush },
 	{ "noop", err_noop, flush },
@@ -89,6 +154,8 @@ main(int argc, char * argv[]) {
 	smtp_greet("200 ");
 	out(" ESMTP\r\n");
 	while ((len = getline(&line, &cap, stdin)) > 0) {
+
+		fputs(line, stderr);
 
 		for (i = 0; smtp_commands[i].cmd; i++)
 			if (!strncasecmp(line, smtp_commands[i].cmd, 4))
