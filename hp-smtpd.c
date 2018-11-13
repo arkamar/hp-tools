@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -175,5 +176,9 @@ main(int argc, char * argv[]) {
 		if (smtp_commands[i].flush)
 			smtp_commands[i].flush();
 	}
+
+	if (errno)
+		fprintf(stderr, "Error: %s\n", strerror(errno));
+
 	free(line);
 }
