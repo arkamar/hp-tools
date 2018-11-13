@@ -105,6 +105,7 @@ static
 void
 smtp_data(char * arg) {
 	out("354 go ahead\r\n");
+	flush();
 	blast();
 	out("250 ok\r\n");
 }
@@ -131,13 +132,13 @@ smtp_quit(char * arg) {
 }
 
 struct commands smtp_commands[] = {
-	{ "rcpt", smtp_rcpt, 0 },
-	{ "mail", smtp_mail, 0 },
-	{ "data", smtp_data, 0 },
+	{ "rcpt", smtp_rcpt, flush },
+	{ "mail", smtp_mail, flush },
+	{ "data", smtp_data, flush },
 	{ "quit", smtp_quit, flush },
 	{ "helo", smtp_helo, flush },
 	{ "ehlo", smtp_ehlo, flush },
-	{ "rset", smtp_rset, 0 },
+	{ "rset", smtp_rset, flush },
 	{ "help", smtp_help, flush },
 	{ "noop", err_noop, flush },
 	{ "vrfy", err_vrfy, flush },
