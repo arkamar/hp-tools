@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 struct commands {
@@ -12,6 +13,9 @@ struct commands {
 	void (*fun)(char * arg);
 	void (*flush)();
 };
+
+static
+unsigned int pid;
 
 void
 flush() {
@@ -111,7 +115,8 @@ smtp_data(char * arg) {
 	out("354 go ahead\r\n");
 	flush();
 	blast();
-	out("250 ok\r\n");
+	pid += rand() % 6 + 1;
+	printf("250 ok %lu qp %u\r\n", time(0), pid);
 }
 
 static
@@ -158,6 +163,9 @@ main(int argc, char * argv[]) {
 	int i;
 
 	struct timeval tv = { 10, 0 };
+
+	srand(time(0));
+	pid = getpid();
 
 	setsockopt(1, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
 	setsockopt(1, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv);
