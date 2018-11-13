@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 struct commands {
@@ -152,6 +155,11 @@ main(int argc, char * argv[]) {
 	size_t cap = 0;
 	ssize_t len;
 	int i;
+
+	struct timeval tv = { 10, 0 };
+
+	setsockopt(1, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
+	setsockopt(1, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv);
 
 	smtp_greet("200 ");
 	out(" ESMTP\r\n");
