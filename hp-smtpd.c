@@ -185,8 +185,11 @@ main(int argc, char * argv[]) {
 			smtp_commands[i].flush();
 	}
 
-	if (errno)
+	if (errno) {
 		fprintf(stderr, "Error: %s\n", strerror(errno));
+		out("451 timeout (#4.4.2)\r\n");
+		flush();
+	}
 
 	free(line);
 }
