@@ -1,4 +1,11 @@
 CFLAGS ?= -O2
 CFLAGS += -Wall -pedantic
 
-all: hp-smtpd
+BIN = hp-smtpd
+
+.PHONY: all
+all: $(BIN)
+
+.PHONY: clean
+clean:
+	$(RM) $(BIN)
