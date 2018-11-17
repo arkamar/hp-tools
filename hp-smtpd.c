@@ -21,6 +21,9 @@ static
 const char * hostname = "hp-smtpd";
 
 static
+const char * maildir = NULL;
+
+static
 void
 flush() {
 	fflush(stdout);
@@ -45,6 +48,8 @@ setup() {
 
 	if (env_hostname)
 		hostname = env_hostname;
+
+	maildir = getenv("MAILDIR");
 }
 
 static
@@ -122,6 +127,15 @@ static void err_vrfy  (char * arg) { out("252 send some mail, i'll try my best\r
 
 static
 void
+die_control() {
+	out("421 unable to read controls (#4.3.0)\r\n");
+	flush();
+	_exit(1);
+}
+
+
+static
+void
 smtp_rcpt(char * arg) {
 	out("250 ok\r\n");
 }
@@ -189,6 +203,11 @@ main(int argc, char * argv[]) {
 	struct timeval tv = { 10, 0 };
 
 	setup();
+
+	if (chdir(maildir) == -1) {
+		fprintf(stderr, "Cannot change directory to maildir: %s\n", maildir);
+		die_control();
+	}
 
 	srand(time(0));
 	pid = getpid();
