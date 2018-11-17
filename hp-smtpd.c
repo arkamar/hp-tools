@@ -37,12 +37,6 @@ out(char * str) {
 
 static
 void
-put(char * str) {
-	fwrite(str, 1, 1, stderr);
-}
-
-static
-void
 setup() {
 	const char * env_hostname = getenv("HOSTNAME");
 
@@ -77,12 +71,21 @@ straynewline() {
 static
 void
 blast() {
-	char ch;
+	const time_t now = time(NULL);
+	char tmp_name[256];
+	char new_name[256];
+	char hostname[64];
+	FILE * file;
 	int state = 1;
+	char ch;
+
+	gethostname(hostname, sizeof hostname);
+	sprintf(tmp_name, "tmp/%lu.%u.%s", now, pid, hostname);
+	sprintf(new_name, "new/%lu.%u.%s", now, pid, hostname);
+	file = fopen(tmp_name, "w");
 
 	for (;;) {
 		ch = getchar();
-		put(&ch);
 
 		switch (state) {
 		case 0:
@@ -101,16 +104,21 @@ blast() {
 			state = 0;
 			break;
 		case 3: /* \r\n + .\r */
-			if (ch == '\n') return;
-			put(".");
-			put("\r");
+			if (ch == '\n') {
+				fclose(file);
+				rename(tmp_name, new_name);
+				return;
+			}
+			putc('.', file);
+			putc('\r', file);
 			if (ch == '\r') { state = 4; continue; }
 			state = 0;
 			break;
 		case 4: /* + \r */
 			if (ch == '\n') { state = 1; break; }
-			if (ch != '\r') { put("\r"); state = 0; }
+			if (ch != '\r') { putc('\r', file); state = 0; }
 		}
+		putc(ch, file);
 	}
 }
 
