@@ -89,17 +89,17 @@ blast() {
 
 		switch (state) {
 		case 0:
-			if (ch == '\n') straynewline();
+			if (ch == '\n') { fclose(file); straynewline(); }
 			if (ch == '\r') { state = 4; continue; }
 			break;
 		case 1: /* \r\n */
-			if (ch == '\n') straynewline();
+			if (ch == '\n') { fclose(file); straynewline(); }
 			if (ch == '.') { state = 2; continue; }
 			if (ch == '\r') { state = 4; continue; }
 			state = 0;
 			break;
 		case 2: /* \r\n + . */
-			if (ch == '\n') straynewline();
+			if (ch == '\n') { fclose(file); straynewline(); }
 			if (ch == '\r') { state = 3; continue; }
 			state = 0;
 			break;
