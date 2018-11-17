@@ -18,6 +18,9 @@ static
 unsigned int pid;
 
 static
+const char * hostname = "hp-smtpd";
+
+static
 void
 flush() {
 	fflush(stdout);
@@ -37,9 +40,18 @@ put(char * str) {
 
 static
 void
+setup() {
+	const char * env_hostname = getenv("HOSTNAME");
+
+	if (env_hostname)
+		hostname = env_hostname;
+}
+
+static
+void
 smtp_greet(char * code) {
 	out(code);
-	fputs("test", stdout);
+	fputs(hostname, stdout);
 }
 
 static
@@ -175,6 +187,8 @@ main(int argc, char * argv[]) {
 	int i;
 
 	struct timeval tv = { 10, 0 };
+
+	setup();
 
 	srand(time(0));
 	pid = getpid();
