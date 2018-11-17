@@ -113,7 +113,9 @@ blast() {
 			if (ch == '\n') {
 				if (file != stderr) {
 					fclose(file);
-					rename(tmp_name, new_name);
+					if (rename(tmp_name, new_name)) {
+						fprintf(stderr, "Cannot move file %s to %s: %s\n", tmp_name, new_name, strerror(errno));
+					}
 				}
 				return;
 			}
