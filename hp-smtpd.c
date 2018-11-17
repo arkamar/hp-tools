@@ -84,29 +84,37 @@ blast() {
 	sprintf(new_name, "new/%lu.%u.%s", now, pid, hostname);
 	file = fopen(tmp_name, "w");
 
+	if (file == NULL) {
+		fprintf(stderr, "Cannot open '%s': %s\n", new_name, strerror(errno));
+		fprintf(stderr, "Using stderr instead of file\n");
+		file = stderr;
+	}
+
 	for (;;) {
 		ch = getchar();
 
 		switch (state) {
 		case 0:
-			if (ch == '\n') { fclose(file); straynewline(); }
+			if (ch == '\n') { if (file != stderr) fclose(file); straynewline(); }
 			if (ch == '\r') { state = 4; continue; }
 			break;
 		case 1: /* \r\n */
-			if (ch == '\n') { fclose(file); straynewline(); }
+			if (ch == '\n') { if (file != stderr) fclose(file); straynewline(); }
 			if (ch == '.') { state = 2; continue; }
 			if (ch == '\r') { state = 4; continue; }
 			state = 0;
 			break;
 		case 2: /* \r\n + . */
-			if (ch == '\n') { fclose(file); straynewline(); }
+			if (ch == '\n') { if (file != stderr) fclose(file); straynewline(); }
 			if (ch == '\r') { state = 3; continue; }
 			state = 0;
 			break;
 		case 3: /* \r\n + .\r */
 			if (ch == '\n') {
-				fclose(file);
-				rename(tmp_name, new_name);
+				if (file != stderr) {
+					fclose(file);
+					rename(tmp_name, new_name);
+				}
 				return;
 			}
 			putc('.', file);
