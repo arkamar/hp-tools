@@ -17,39 +17,47 @@ struct commands {
 static
 unsigned int pid;
 
+static
 void
 flush() {
 	fflush(stdout);
 }
 
+static
 void
 out(char * str) {
 	fputs(str, stdout);
 }
 
+static
 void
 put(char * str) {
 	fwrite(str, 1, 1, stderr);
 }
 
+static
 void
 smtp_greet(char * code) {
 	out(code);
 	fputs("test", stdout);
 }
 
+static
 void
 smtp_helo(char * arg) {
 	smtp_greet("250 ");
 	out("\r\n");
 }
 
-void straynewline() {
+static
+void
+straynewline() {
 	out("451 See http://pobox.com/~djb/docs/smtplf.html.\r\n");
 	flush();
 	_exit(1);
 }
 
+static
 void
 blast() {
 	char ch;
@@ -89,21 +97,24 @@ blast() {
 	}
 }
 
+static
 void
 smtp_ehlo(char * arg) {
 	smtp_greet("250-");
 	out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
 }
 
-void err_unimpl(char * arg) { out("502 unimplemented (#5.5.1)\r\n"); }
-void err_noop  (char * arg) { out("250 ok\r\n"); }
-void err_vrfy  (char * arg) { out("252 send some mail, i'll try my best\r\n"); }
+static void err_unimpl(char * arg) { out("502 unimplemented (#5.5.1)\r\n"); }
+static void err_noop  (char * arg) { out("250 ok\r\n"); }
+static void err_vrfy  (char * arg) { out("252 send some mail, i'll try my best\r\n"); }
 
+static
 void
 smtp_rcpt(char * arg) {
 	out("250 ok\r\n");
 }
 
+static
 void
 smtp_mail(char * arg) {
 	out("250 ok\r\n");
@@ -140,6 +151,7 @@ smtp_quit(char * arg) {
 	exit(0);
 }
 
+static
 struct commands smtp_commands[] = {
 	{ "rcpt", smtp_rcpt, flush },
 	{ "mail", smtp_mail, flush },
