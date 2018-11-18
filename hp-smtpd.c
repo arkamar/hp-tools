@@ -37,6 +37,14 @@ out(char * str) {
 
 static
 void
+die_control() {
+	out("421 unable to read controls (#4.3.0)\r\n");
+	flush();
+	_exit(1);
+}
+
+static
+void
 setup() {
 	const char * env_hostname = getenv("HOSTNAME");
 
@@ -44,6 +52,11 @@ setup() {
 		hostname = env_hostname;
 
 	maildir = getenv("MAILDIR");
+
+	if (!maildir) {
+		fprintf(stderr, "MAILDIR environment variable is not set\n");
+		die_control();
+	}
 }
 
 static
@@ -142,15 +155,6 @@ smtp_ehlo(char * arg) {
 static void err_unimpl(char * arg) { out("502 unimplemented (#5.5.1)\r\n"); }
 static void err_noop  (char * arg) { out("250 ok\r\n"); }
 static void err_vrfy  (char * arg) { out("252 send some mail, i'll try my best\r\n"); }
-
-static
-void
-die_control() {
-	out("421 unable to read controls (#4.3.0)\r\n");
-	flush();
-	_exit(1);
-}
-
 
 static
 void
