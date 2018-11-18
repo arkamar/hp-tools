@@ -1,0 +1,28 @@
+.Dd November 18, 2018
+.Dt HP-SMTPD 1
+.Os hp-tools
+.Sh NAME
+.Nm hp-smtpd
+.Nd smtp daemon
+.Sh SYNOPSIS
+.Cm tcpserver Ar 0 Ar 25 Nm
+.Sh DESCRIPTION
+.Nm
+pretends behaviour of qmail smtpd.
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev HOSTNAME
+sets the hostname used in greeting message and
+.Ic helo ,
+.Ic ehlo
+and
+.Ic quit
+replies.
+It uses
+.Nm
+if
+.Ev HOSTNAME
+is not set.
+.El
+.Sh SEE ALSO
+.Xr tcpserver 1 .
