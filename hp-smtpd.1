@@ -8,7 +8,8 @@
 .Cm tcpserver Ar 0 Ar 25 Nm
 .Sh DESCRIPTION
 .Nm
-pretends behaviour of qmail smtpd.
+pretends behaviour of qmail smtpd and stores all incoming messages to the
+.Ev MAILDIR .
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
 .It Ev HOSTNAME
@@ -23,6 +24,9 @@ It uses
 if
 .Ev HOSTNAME
 is not set.
+.It Ev MAILDIR
+sets the location of the maildir.
+This environment variable is mandatory.
 .El
 .Sh SEE ALSO
 .Xr tcpserver 1 .
