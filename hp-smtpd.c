@@ -234,7 +234,7 @@ main(int argc, char * argv[]) {
 	srand(time(0));
 	pid = getpid();
 
-	setsockopt(1, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
+	setsockopt(0, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
 	setsockopt(1, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv);
 
 	smtp_greet("200 ");
