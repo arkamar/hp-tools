@@ -234,8 +234,11 @@ main(int argc, char * argv[]) {
 	srand(time(0));
 	pid = getpid();
 
-	setsockopt(0, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv);
-	setsockopt(1, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv);
+	if (setsockopt(0, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv) != 0)
+		fprintf(stderr, "Cannot set rcvt timeout: %s\n", strerror(errno));
+
+	if (setsockopt(1, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv) != 0)
+		fprintf(stderr, "Cannot set send timeout: %s\n", strerror(errno));
 
 	smtp_greet("200 ");
 	out(" ESMTP\r\n");
