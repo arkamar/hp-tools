@@ -149,7 +149,7 @@ static
 void
 smtp_ehlo(char * arg) {
 	smtp_greet("250-");
-	out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+	out("\r\n250-PIPELINING\r\n250-STARTTLS\r\n250 8BITMIME\r\n");
 }
 
 static void err_unimpl(char * arg) { out("502 unimplemented (#5.5.1)\r\n"); }
@@ -217,12 +217,15 @@ struct commands smtp_commands[] = {
 
 int
 main(int argc, char * argv[]) {
+	const char * argv0;
 	char * line = NULL;
 	size_t cap = 0;
 	ssize_t len;
 	int i;
 
 	struct timeval tv = { 10, 0 };
+
+	argv0 = *argv; argv++; argc--;
 
 	setup();
 
@@ -250,9 +253,18 @@ main(int argc, char * argv[]) {
 			if (!strncasecmp(line, smtp_commands[i].cmd, 4))
 				break;
 
-		smtp_commands[i].fun(line);
-		if (smtp_commands[i].flush)
-			smtp_commands[i].flush();
+		if (!strncasecmp(line, "starttls", sizeof "starttls" - 1)) {
+			out("250 ready for tls\r\n");
+			flush();
+			if (argv && *argv)
+				execvp(*argv, argv);
+			else
+				fprintf(stderr, "Argument is missing to start tls\n");
+		} else {
+			smtp_commands[i].fun(line);
+			if (smtp_commands[i].flush)
+				smtp_commands[i].flush();
+		}
 	}
 
 	if (errno) {
